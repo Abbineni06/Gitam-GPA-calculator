@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GITAM GradeHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="modal-overlay" id="onboarding-modal">
+    <div class="modal-box">
+      
+      <div class="modal-step active" id="step-1">
+        <div class="modal-header">
+          <div class="modal-icon">👋</div>
+          <div class="modal-title">Welcome to GradeHub</div>
+          <div class="modal-sub">Let's initialize your workspace configurations for this semester.</div>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">How many subjects do you have?</label>
+          <input type="number" id="ob-total-subjects" class="form-input" min="1" max="15" value="5" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Do you have lab subjects?</label>
+          <div class="btn-group-toggle">
+            <button type="button" class="toggle-btn" id="lab-no" onclick="selectLabOption(false)">No</button>
+            <button type="button" class="toggle-btn selected" id="lab-yes" onclick="selectLabOption(true)">Yes</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="primary-modal-btn" onclick="goToNextStep()">Continue →</button>
+        </div>
+      </div>
+
+      <div class="modal-step" id="step-2">
+        <div class="modal-header">
+          <div class="modal-icon">🔬</div>
+          <div class="modal-title">Lab Specifications</div>
+          <div class="modal-sub">Specify the total number of laboratory or practical courses included.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">How many lab subjects?</label>
+          <input type="number" id="ob-lab-count" class="form-input" min="1" max="10" value="2" />
+        </div>
+        <div class="modal-footer">
+          <button class="primary-modal-btn" onclick="goToStep3()">Continue →</button>
+        </div>
+      </div>
+
+      <div class="modal-step" id="step-3">
+        <div class="modal-header">
+          <div class="modal-icon">⚡</div>
+          <div class="modal-title">CLAD Course Inclusion</div>
+          <div class="modal-sub">Is the 1-Credit Marks-Based CLAD course part of your active curriculum?</div>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">Do you have CLAD course?</label>
+          <div class="btn-group-toggle">
+            <button type="button" class="toggle-btn selected" id="clad-no" onclick="selectCladOption(false)">No</button>
+            <button type="button" class="toggle-btn" id="clad-yes" onclick="selectCladOption(true)">Yes</button>
+          </div>
+        </div>
+        <div class="form-group" id="clad-marks-container" style="display: none;">
+          <label class="form-label">Enter CLAD Marks (0 - 100)</label>
+          <input type="number" id="ob-clad-marks" class="form-input" min="0" max="100" placeholder="e.g. 85" />
+        </div>
+        <div class="modal-footer">
+          <button class="primary-modal-btn" onclick="completeOnboarding()">Launch Workspace Platform</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="app-wrapper">
+    <header class="header">
+      <div class="header-brand">
+        <div>
+          <div class="header-title">Welcome back, Scholar!</div>
+          <div class="header-sub">Track your academics, manage weights, and compute grades instantly.</div>
+        </div>
+      </div>
+      <button id="theme-toggle">☀️ Light Mode</button>
+    </header>
+
+    <div class="metrics-row">
+      <div class="metric-card sgpa">
+        <div class="metric-header">
+          <div class="metric-label">Current SGPA</div>
+          <div class="metric-icon-box">🎓</div>
+        </div>
+        <div class="metric-body">
+          <div>
+            <div class="metric-value" id="sgpa-display">0.00 <span>/ 10</span></div>
+            <div class="metric-sub" id="sgpa-msg">Excellent! Keep it up 🔥</div>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 100 40"><path d="M0 35 Q15 15, 30 25 T60 10 T90 5 Q100 0, 100 0"></path></svg>
+        </div>
+      </div>
+      <div class="metric-card cgpa">
+        <div class="metric-header">
+          <div class="metric-label">Overall CGPA</div>
+          <div class="metric-icon-box">🏆</div>
+        </div>
+        <div class="metric-body">
+          <div>
+            <div class="metric-value" id="cgpa-display">0.00 <span>/ 10</span></div>
+            <div class="metric-sub" id="cgpa-msg">You're doing great! 🚀</div>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 100 40"><path d="M0 30 Q20 20, 40 28 T70 12 T100 5"></path></svg>
+        </div>
+      </div>
+      <div class="metric-card subjects">
+        <div class="metric-header">
+          <div class="metric-label">Total Subjects</div>
+          <div class="metric-icon-box">📘</div>
+        </div>
+        <div class="metric-body">
+          <div>
+            <div class="metric-value" id="total-subjects-display">0</div>
+            <div class="metric-sub" style="color:var(--text3)">Active Matrix Rows</div>
+          </div>
+        </div>
+      </div>
+      <div class="metric-card credits">
+        <div class="metric-header">
+          <div class="metric-label">Total Credits</div>
+          <div class="metric-icon-box">💖</div>
+        </div>
+        <div class="metric-body">
+          <div>
+            <div class="metric-value" id="total-credits-display">0</div>
+            <div class="metric-sub" style="color:var(--text3)">Earned Dynamic Units</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <div class="card">
+        <div class="subjects-header">
+          <div class="card-title" style="margin-bottom:0">Subjects Overview</div>
+          <div class="subjects-actions">
+            <button class="add-button" onclick="addSubjectRow()">+ Add Subject</button>
+            <button class="calc-button" onclick="calculateWorkspaceMetrics()">📊 Calculate</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="subjects-table">
+            <thead>
+              <tr>
+                <th style="width: 4%">#</th>
+                <th style="width: 11%">Subject Code</th>
+                <th style="width: 23%">Subject Name</th>
+                <th style="width: 8%">Credits</th>
+                <th style="width: 8%">Type</th>
+                <th style="width: 7%">S1</th>
+                <th style="width: 7%">S2</th>
+                <th style="width: 7%">LE</th>
+                <th style="width: 10%">Lab Marks</th>
+                <th style="width: 8%">Grade</th>
+                <th style="width: 5%">Points</th>
+                <th style="width: 5%">Action</th>
+              </tr>
+            </thead>
+            <tbody id="subjects-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="card">
+          <div class="card-title">Academic Summary</div>
+          <div class="summary-widget-list">
+            <div class="summary-widget-row">
+              <div class="summary-widget-card">
+                <div class="sw-icon">🟢</div>
+                <div class="sw-value" id="summary-active-subjects">0</div>
+                <div class="sw-label">Total Subjects</div>
+              </div>
+              <div class="summary-widget-card">
+                <div class="sw-icon">✨</div>
+                <div class="sw-value" id="summary-completed-credits">0</div>
+                <div class="sw-label">Total Credits</div>
+              </div>
+              <div class="summary-widget-card">
+                <div class="sw-icon">📈</div>
+                <div class="sw-value" id="summary-total-points">0</div>
+                <div class="sw-label">Total Points</div>
+              </div>
+              <div class="summary-widget-card">
+                <div class="sw-icon">⏱️</div>
+                <div class="sw-value" style="font-size:1.1rem; padding-top:4px;" id="summary-sgpa-status">Great</div>
+                <div class="sw-label">SGPA Status</div>
+              </div>
+            </div>
+          </div>
+          <button class="recalc-large-btn" onclick="calculateWorkspaceMetrics()">Recalculate SGPA &nbsp; →</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Grade Distribution</div>
+          <div class="distribution-inner">
+            <div class="donut-wrap">
+              <svg id="donut-svg" viewBox="0 0 130 130">
+                <circle cx="65" cy="65" r="50" fill="none" stroke="var(--border)" stroke-width="14"/>
+                <g id="donut-arcs"></g>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-total" id="donut-total">0</div>
+                <div class="donut-label">Classes</div>
+              </div>
+            </div>
+            <div class="legend-list" id="legend-list"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Past CGPA (To Calculate Overall CGPA)</div>
+          <div class="cgpa-form">
+            <div class="form-group">
+              <label class="form-label">Past CGPA</label>
+              <input type="number" class="form-input" id="past-cgpa-input" placeholder="e.g. 7.85" min="0" max="10" step="0.01" oninput="calculateOverallCGPA()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Completed Credits</label>
+              <input type="number" class="form-input" id="past-credits-input" placeholder="e.g. 60" min="0" oninput="calculateOverallCGPA()"/>
+            </div>
+            <button class="cgpa-submit-btn" onclick="calculateOverallCGPA(true)">Save &amp; Calculate Overall CGPA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
